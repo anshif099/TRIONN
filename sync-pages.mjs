@@ -15,6 +15,22 @@ const staticPrefixes = [
   "/audio/",
   "/assets/",
 ];
+const teamMembers = [
+  "prabhat",
+  "gaurav",
+  "rushi",
+  "dhruv",
+  "sandip",
+  "hardik",
+  "viral",
+  "umang",
+  "rahul",
+  "bhagirath",
+  "ayaz",
+  "dhaval",
+  "vaishnavi",
+  "nilesh",
+];
 
 const queue = [];
 const queuedPaths = new Set();
@@ -154,6 +170,13 @@ async function syncAsset(url) {
 }
 
 for (const route of routes) await syncRoute(route);
+
+// The About page builds these image URLs at runtime, so they cannot be found
+// by scanning literal asset references in the downloaded JavaScript.
+for (const member of teamMembers) {
+  enqueue(`/images/team/${member}.webp`);
+  enqueue(`/images/team/${member}_m.webp`);
+}
 
 let cursor = 0;
 const concurrency = 8;
