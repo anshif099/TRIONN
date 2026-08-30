@@ -31,6 +31,16 @@ const teamMembers = [
   "vaishnavi",
   "nilesh",
 ];
+const voiceClips = [
+  "identifying",
+  "detected",
+  "intro",
+  "create",
+  "vision",
+  "budget",
+  "review",
+  "submitted",
+];
 
 const queue = [];
 const queuedPaths = new Set();
@@ -176,7 +186,9 @@ for (const route of routes) await syncRoute(route);
 for (const member of teamMembers) {
   enqueue(`/images/team/${member}.webp`);
   enqueue(`/images/team/${member}_m.webp`);
+  enqueue(`/video/team/${member}.mp4`);
 }
+for (const clip of voiceClips) enqueue(`/audio/voice/${clip}.mp3`);
 
 let cursor = 0;
 const concurrency = 8;
