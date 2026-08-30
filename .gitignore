@@ -1,0 +1,4 @@
+dist/
+.vercel/
+__pycache__/
+trionn-test*.png

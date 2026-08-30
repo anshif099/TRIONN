@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en-IN">
+
+<head>
+    <title>Warmup Page</title>
+    <style>
+        @font-face {
+            font-family: 'Google Sans';
+            font-style: normal;
+            font-weight: 400 700;
+            font-feature-settings: "calt" 0, "liga" 0;
+            font-display: optional;
+            src: url(//fonts.gstatic.com/s/googlesans/v29/4UaGrENHsxJlGDuGo1OIlL3Owp4.woff2)format('woff2');
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+    </style>
+    <script nonce="KBEfZSktQcPQniJfA7S9aQ">
+        (function() {
+            var w = ["Google Sans", [400, 500, 700]];
+            (function() {
+                for (var a = 0; a < w.length; a += 2)
+                    for (var b = w[a], e = w[a + 1], d = 0, c = void 0; c = e[d]; ++d) b === "Noto Color Emoji" ? document.fonts.load(c + " 10pt " + b, "\ud83c\uddfa\ud83c\uddf8").catch(function() {}) : document.fonts.load(c + " 10pt " + b).catch(function() {})
+            })();
+        })();
+    </script>
+</head>
+
+<body>
+    <script nonce="KBEfZSktQcPQniJfA7S9aQ">
+        (function() {
+            var w = ["Google Sans", [400, 500, 700]];
+            (function() {
+                var d = {
+                        en: "a",
+                        es: "e",
+                        ja: "\u306e",
+                        "pt-br": "a",
+                        fr: "e",
+                        de: "e",
+                        ru: "\u043e",
+                        id: "a",
+                        tr: "a",
+                        it: "e",
+                        ar: "\u0627",
+                        pl: "a",
+                        vi: "a",
+                        "zh-tw": "\u7684",
+                        th: "\u0e32"
+                    },
+                    e = (document.documentElement.lang || "en").toLowerCase(),
+                    h = e.split("-")[0],
+                    k = d[e] || d[h] || "a";
+                document.fonts.ready.then(function() {
+                    for (var b = 0; b < w.length; b += 2)
+                        for (var f = w[b], l = w[b + 1], g = 0, c; c = l[g]; ++g)
+                            if (document.fonts.check(c + " 10pt " + f)) {
+                                var a = document.createElement("div");
+                                a.textContent = k;
+                                a.style.fontFamily = f;
+                                a.style.fontWeight = String(c);
+                                a.style.position =
+                                    "absolute";
+                                a.style.left = "-9999px";
+                                document.body.appendChild(a)
+                            }
+                })
+            })();
+        })();
+    </script>
+</body>
+
+</html>
