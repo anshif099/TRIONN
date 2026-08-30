@@ -3,5 +3,12 @@
   "framework": null,
   "installCommand": "",
   "buildCommand": "node build.mjs",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/work", "destination": "/work/index.html" },
+    { "source": "/services", "destination": "/services/index.html" },
+    { "source": "/about", "destination": "/about/index.html" },
+    { "source": "/contact", "destination": "/contact/index.html" },
+    { "source": "/trionn-story", "destination": "/trionn-story/index.html" }
+  ]
 }

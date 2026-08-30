@@ -1,4 +1,4 @@
-import { copyFile, cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { access, copyFile, cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { dirname, extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -14,6 +14,18 @@ const aliases = new Map([
   ["_next/static/chunks/0y3cortxor.js", "_next/static/chunks/0y3~cortx~or~.js"],
   ["_next/static/chunks/0xt8hh0aijjr.css", "_next/static/chunks/0xt8hh0aijjr~.css"],
 ]);
+
+const staticRoutes = ["/", "/work", "/services", "/about", "/contact", "/trionn-story"];
+const staticNavigation = `<script data-static-navigation>(function(){var routes=new Set(${JSON.stringify(staticRoutes)});addEventListener("click",function(event){if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;var anchor=event.target.closest&&event.target.closest("a[href]");if(!anchor||anchor.target==="_blank"||anchor.hasAttribute("download"))return;var url=new URL(anchor.href,location.href);if(url.origin===location.origin&&routes.has(url.pathname)){event.preventDefault();event.stopImmediatePropagation();location.assign(url.pathname+url.search+url.hash)}},true)})();</script>`;
+
+async function exists(path) {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 async function walk(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -38,32 +50,41 @@ function repairJavaScript(source) {
     .replace(/\?\?\s+=/g, "??=");
 }
 
+function enhanceHtml(source) {
+  if (source.includes("data-static-navigation")) return source;
+  return source.replace("</head>", `${staticNavigation}</head>`);
+}
+
 async function build() {
   await rm(outputRoot, { recursive: true, force: true });
   await cp(sourceRoot, outputRoot, { recursive: true });
 
   let repairedFiles = 0;
+  let enhancedPages = 0;
   const outputFiles = await walk(outputRoot);
 
   for (const path of outputFiles) {
-    if (extname(path) !== ".js") continue;
+    const extension = extname(path);
+    if (extension !== ".js" && extension !== ".html") continue;
 
     const original = await readFile(path, "utf8");
-    const repaired = repairJavaScript(original);
-    if (repaired !== original) {
-      await writeFile(path, repaired, "utf8");
-      repairedFiles += 1;
+    const transformed = extension === ".js" ? repairJavaScript(original) : enhanceHtml(original);
+    if (transformed !== original) {
+      await writeFile(path, transformed, "utf8");
+      if (extension === ".js") repairedFiles += 1;
+      else enhancedPages += 1;
     }
   }
 
   for (const [source, destination] of aliases) {
     const destinationPath = resolve(outputRoot, destination);
+    if (await exists(destinationPath)) continue;
     await mkdir(dirname(destinationPath), { recursive: true });
     await copyFile(resolve(outputRoot, source), destinationPath);
   }
 
   console.log(`Built ${outputRoot}`);
-  console.log(`Repaired ${repairedFiles} JavaScript files and created ${aliases.size} asset aliases.`);
+  console.log(`Repaired ${repairedFiles} JavaScript files and enhanced ${enhancedPages} HTML documents.`);
 }
 
 await build();
