@@ -1,12 +1,12 @@
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { syncRoutes as routes } from "./routes.mjs";
 
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
 const siteRoot = resolve(projectRoot, "trionn.com");
 const origin = "https://trionn.com";
-const routes = ["/work", "/services", "/about", "/contact", "/trionn-story"];
 const staticPrefixes = [
   "/_next/static/",
   "/images/",
@@ -78,8 +78,9 @@ function toStaticUrl(reference, base = origin) {
   }
 
   const decodedPath = decodeURIComponent(url.pathname);
+  const supportedNextAsset = /\.(?:js|css|map|woff2?|ttf|otf|eot|svg|png|jpe?g|webp|avif|gif|ico)$/i;
   if (
-    (decodedPath.startsWith("/_next/static/") && !/\.[A-Za-z0-9]+$/.test(decodedPath)) ||
+    (decodedPath.startsWith("/_next/static/") && !supportedNextAsset.test(decodedPath)) ||
     decodedPath.endsWith("/") ||
     decodedPath.endsWith(".") ||
     decodedPath.endsWith("_") ||

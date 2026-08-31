@@ -6,6 +6,7 @@
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/work", "destination": "/work/index.html" },
+    { "source": "/work/:slug", "destination": "/work/:slug/index.html" },
     { "source": "/services", "destination": "/services/index.html" },
     { "source": "/about", "destination": "/about/index.html" },
     { "source": "/contact", "destination": "/contact/index.html" },
