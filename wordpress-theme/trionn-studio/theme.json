@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "settings": {
+    "appearanceTools": true,
+    "layout": {
+      "contentSize": "920px",
+      "wideSize": "1600px"
+    },
+    "color": {
+      "palette": [
+        { "slug": "ink", "name": "TRIONN Ink", "color": "#08090b" },
+        { "slug": "paper", "name": "TRIONN Paper", "color": "#f2f0e9" },
+        { "slug": "acid", "name": "TRIONN Acid", "color": "#d8ff3e" }
+      ]
+    },
+    "typography": {
+      "fluid": true,
+      "fontFamilies": [
+        { "slug": "trionn-sans", "name": "TRIONN Sans", "fontFamily": "TrionnSans, Arial, sans-serif" },
+        { "slug": "trionn-display", "name": "TRIONN Display", "fontFamily": "TrionnDisplay, Arial, sans-serif" }
+      ]
+    }
+  },
+  "styles": {
+    "color": { "background": "#f2f0e9", "text": "#08090b" },
+    "typography": { "fontFamily": "TrionnSans, Arial, sans-serif", "lineHeight": "1.5" }
+  }
+}
+
