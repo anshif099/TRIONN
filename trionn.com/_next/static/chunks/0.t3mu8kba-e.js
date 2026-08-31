@@ -1377,12 +1377,12 @@
                             children: [(0, t.jsxs)("div", {
                                 className: "flex flex-col justify-between gap-6 col-span-12 md:col-span-6 lg:col-span-7 xl:col-span-8 order-2 md:order-1",
                                 children: [(0, t.jsxs)("div", {
-                                    className: "flex flex-wrap items-center gap-x-5 gap-y-2",
+                                    className: "block",
                                     children: [(0, t.jsxs)("span", {
                                         className: "title block text-light-font/50",
                                         children: ["©TRIONN® ", new Date().getFullYear()]
                                     }), (0, t.jsx)("span", {
-                                        className: "title block text-light-font/50",
+                                        className: "title block mt-2 text-light-font/50",
                                         children: "Developed by Muhammed Anshif"
                                     })]
                                 }), (0, t.jsx)(x.BlurTextReveal, {
