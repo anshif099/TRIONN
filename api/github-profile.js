@@ -38,6 +38,25 @@ function parseContributionCalendar(html) {
   return { total, days, source: "public" };
 }
 
+async function getAuthenticatedUser() {
+  if (!process.env.GITHUB_TOKEN) return null;
+
+  const authenticatedUserResponse = await fetch("https://api.github.com/user", {
+    headers: getGitHubHeaders(true),
+  });
+
+  if (!authenticatedUserResponse.ok) {
+    throw new Error(`GitHub authenticated user returned ${authenticatedUserResponse.status}`);
+  }
+
+  const authenticatedUser = await authenticatedUserResponse.json();
+  if (authenticatedUser.login?.toLowerCase() !== GITHUB_USER.toLowerCase()) {
+    throw new Error("GITHUB_TOKEN must belong to the displayed GitHub account");
+  }
+
+  return authenticatedUser;
+}
+
 async function getAuthenticatedContributions() {
   if (!process.env.GITHUB_TOKEN) return null;
 
@@ -110,7 +129,13 @@ export default async function handler(request, response) {
 
   try {
     const githubHeaders = getGitHubHeaders();
-    const [profileResponse, repositoriesResponse, contributionsResponse, authenticatedContributions] = await Promise.all([
+    const [
+      profileResponse,
+      repositoriesResponse,
+      contributionsResponse,
+      authenticatedUser,
+      authenticatedContributions,
+    ] = await Promise.all([
       fetch(`https://api.github.com/users/${GITHUB_USER}`, { headers: githubHeaders }),
       fetch(
         `https://api.github.com/users/${GITHUB_USER}/repos?type=owner&sort=updated&per_page=6`,
@@ -118,6 +143,10 @@ export default async function handler(request, response) {
       ),
       fetch(`https://github.com/users/${GITHUB_USER}/contributions`, {
         headers: { "User-Agent": githubHeaders["User-Agent"] },
+      }),
+      getAuthenticatedUser().catch((error) => {
+        console.warn("Authenticated GitHub user unavailable; using public profile data", error);
+        return null;
       }),
       getAuthenticatedContributions().catch((error) => {
         console.warn("Authenticated contributions unavailable; using public data", error);
@@ -149,7 +178,10 @@ export default async function handler(request, response) {
         location: profile.location,
         followers: profile.followers,
         following: profile.following,
-        publicRepositories: profile.public_repos,
+        publicRepositories:
+          typeof authenticatedUser?.owned_private_repos === "number"
+            ? authenticatedUser.public_repos + authenticatedUser.owned_private_repos
+            : profile.public_repos,
       },
       repositories: repositories.map((repository) => ({
         name: repository.name,
