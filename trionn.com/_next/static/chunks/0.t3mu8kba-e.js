@@ -1321,11 +1321,175 @@
             children: ["IST → ", e]
         })
     }
+
+    function GitHubProfileModal({
+        onClose: e
+    }) {
+        let [r, n] = (0, a.useState)(null), [l, o] = (0, a.useState)(""), [s, c] = (0, a.useState)(!0);
+        (0, a.useEffect)(() => {
+            let t = !1,
+                r = document.body.style.overflow,
+                a = t => {
+                    "Escape" === t.key && e()
+                };
+            return document.body.style.overflow = "hidden", document.addEventListener("keydown", a), fetch("/api/github-profile").then(e => {
+                if (!e.ok) throw Error("Unable to load GitHub profile");
+                return e.json()
+            }).then(e => {
+                t || n(e)
+            }).catch(e => {
+                t || o(e.message || "Unable to load GitHub profile")
+            }).finally(() => {
+                t || c(!1)
+            }), () => {
+                t = !0, document.body.style.overflow = r, document.removeEventListener("keydown", a)
+            }
+        }, [e]);
+        let d = r ? .profile,
+            h = r ? .repositories || [],
+            f = r ? .contributions ? .days || [],
+            p = r ? .contributions ? .total || 0;
+        return (0, t.jsx)("div", {
+            className: "github-modal-backdrop",
+            onMouseDown: t => {
+                t.target === t.currentTarget && e()
+            },
+            children: (0, t.jsxs)("section", {
+                className: "github-modal-panel",
+                role: "dialog",
+                "aria-modal": "true",
+                "aria-labelledby": "github-profile-title",
+                children: [(0, t.jsxs)("header", {
+                    className: "github-modal-header",
+                    children: [(0, t.jsxs)("div", {
+                        children: [(0, t.jsx)("span", {
+                            className: "github-modal-eyebrow github-modal-muted",
+                            children: "Developer profile"
+                        }), (0, t.jsx)("h2", {
+                            id: "github-profile-title",
+                            children: "Muhammed Anshif"
+                        })]
+                    }), (0, t.jsx)("button", {
+                        type: "button",
+                        className: "github-modal-close",
+                        onClick: e,
+                        autoFocus: !0,
+                        "aria-label": "Close developer profile",
+                        children: "×"
+                    })]
+                }), s ? (0, t.jsx)("div", {
+                    className: "github-modal-status",
+                    role: "status",
+                    children: "Loading GitHub profile…"
+                }) : l ? (0, t.jsx)("div", {
+                    className: "github-modal-status",
+                    role: "alert",
+                    children: l
+                }) : d ? (0, t.jsxs)(t.Fragment, {
+                    children: [(0, t.jsxs)("div", {
+                        className: "github-modal-content",
+                        children: [(0, t.jsxs)("aside", {
+                            className: "github-modal-profile",
+                            children: [(0, t.jsx)("img", {
+                                className: "github-modal-avatar",
+                                src: d.avatarUrl,
+                                alt: `${d.name} GitHub avatar`,
+                                width: 116,
+                                height: 116
+                            }), (0, t.jsxs)("div", {
+                                children: [(0, t.jsx)("h3", {
+                                    children: d.name
+                                }), (0, t.jsxs)("p", {
+                                    className: "github-modal-muted",
+                                    children: ["@", d.login]
+                                })]
+                            }), d.bio && (0, t.jsx)("p", {
+                                className: "github-modal-muted",
+                                children: d.bio
+                            }), d.location && (0, t.jsx)("p", {
+                                className: "github-modal-label github-modal-muted",
+                                children: d.location
+                            }), (0, t.jsx)("div", {
+                                className: "github-modal-stats",
+                                children: [
+                                    ["Repos", d.publicRepositories],
+                                    ["Followers", d.followers],
+                                    ["Following", d.following]
+                                ].map(e => (0, t.jsxs)("div", {
+                                    className: "github-modal-stat",
+                                    children: [(0, t.jsx)("strong", {
+                                        children: e[1]
+                                    }), (0, t.jsx)("span", {
+                                        className: "github-modal-label github-modal-muted",
+                                        children: e[0]
+                                    })]
+                                }, e[0]))
+                            })]
+                        }), (0, t.jsxs)("div", {
+                            children: [(0, t.jsxs)("h3", {
+                                children: [p.toLocaleString(), " contributions in the last year"]
+                            }), (0, t.jsxs)("div", {
+                                className: "github-calendar-shell",
+                                children: [(0, t.jsx)("div", {
+                                    className: "github-calendar-scroll",
+                                    children: (0, t.jsx)("div", {
+                                        className: "github-calendar-grid",
+                                        role: "img",
+                                        "aria-label": `${p.toLocaleString()} GitHub contributions in the last year`,
+                                        children: f.map(e => (0, t.jsx)("span", {
+                                            className: "github-calendar-day",
+                                            "data-level": e.level,
+                                            title: `${e.date} · contribution level ${e.level}`
+                                        }, e.date))
+                                    })
+                                }), (0, t.jsxs)("div", {
+                                    className: "github-calendar-footer github-modal-label",
+                                    children: [(0, t.jsx)("span", {
+                                        children: "Last 12 months"
+                                    }), (0, t.jsxs)("div", {
+                                        className: "github-calendar-legend",
+                                        "aria-label": "Contribution intensity",
+                                        children: [(0, t.jsx)("span", {}), (0, t.jsx)("span", {}), (0, t.jsx)("span", {}), (0, t.jsx)("span", {}), (0, t.jsx)("span", {})]
+                                    })]
+                                })]
+                            })]
+                        })]
+                    }), h.length > 0 && (0, t.jsxs)("section", {
+                        className: "github-modal-section",
+                        children: [(0, t.jsx)("h3", {
+                            children: "Recently updated repositories"
+                        }), (0, t.jsx)("div", {
+                            className: "github-modal-repositories",
+                            children: h.map(e => (0, t.jsxs)("article", {
+                                className: "github-modal-repository",
+                                children: [(0, t.jsx)("h4", {
+                                    children: e.name
+                                }), (0, t.jsx)("p", {
+                                    children: e.description || "Public GitHub repository."
+                                }), (0, t.jsxs)("div", {
+                                    className: "github-modal-repo-meta",
+                                    children: [(0, t.jsx)("span", {
+                                        children: e.language || "Code"
+                                    }), (0, t.jsxs)("span", {
+                                        children: ["★ ", e.stars]
+                                    }), (0, t.jsxs)("span", {
+                                        children: ["Forks ", e.forks]
+                                    })]
+                                })]
+                            }, e.name))
+                        })]
+                    })]
+                }) : null]
+            })
+        })
+    }
     e.s(["default", 0, function() {
         let e = (0, k.useTransitionReady)(),
-            a = (0, M.usePathname)();
-        return y.includes(a) ? null : (0, t.jsx)(l, {
-            children: e && (0, t.jsxs)("footer", {
+            [profileOpen, setProfileOpen] = (0, a.useState)(!1),
+            footerPath = (0, M.usePathname)();
+        return y.includes(footerPath) ? null : (0, t.jsx)(l, {
+            children: e && (0, t.jsxs)(t.Fragment, {
+                children: [(0, t.jsxs)("footer", {
                 id: "site-footer",
                 className: "site-footer relative z-2 flex min-h-dvh flex-col overflow-hidden bg-[#040508] text-light-font",
                 children: [(0, t.jsx)(d, {}), (0, t.jsx)("div", {
@@ -1381,9 +1545,14 @@
                                     children: [(0, t.jsxs)("span", {
                                         className: "title block text-light-font/50",
                                         children: ["©TRIONN® ", new Date().getFullYear()]
-                                    }), (0, t.jsx)("span", {
+                                    }), (0, t.jsxs)("span", {
                                         className: "title block mt-2 text-light-font/50",
-                                        children: "Developed by Muhammed Anshif"
+                                        children: ["Developed by ", (0, t.jsx)("button", {
+                                            type: "button",
+                                            className: "github-credit-button",
+                                            onClick: () => setProfileOpen(!0),
+                                            children: "Muhammed Anshif"
+                                        })]
                                     })]
                                 }), (0, t.jsx)(x.BlurTextReveal, {
                                     as: "span",
@@ -1444,7 +1613,10 @@
                 }), (0, t.jsx)(D, {
                     className: "w-full"
                 })]
-            })
+            }), profileOpen && (0, t.jsx)(GitHubProfileModal, {
+                onClose: () => setProfileOpen(!1)
+            })]
+        })
         })
     }], 1401)
 }, 23319, e => {

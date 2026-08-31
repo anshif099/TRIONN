@@ -17,6 +17,7 @@ const aliases = new Map([
 ]);
 
 const staticNavigation = `<script data-static-navigation>(function(){var routes=new Set(${JSON.stringify(staticRoutes)});addEventListener("click",function(event){if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;var anchor=event.target.closest&&event.target.closest("a[href]");if(!anchor||anchor.target==="_blank"||anchor.hasAttribute("download"))return;var url=new URL(anchor.href,location.href);if(url.origin===location.origin&&routes.has(url.pathname)){event.preventDefault();event.stopImmediatePropagation();location.assign(url.pathname+url.search+url.hash)}},true)})();</script>`;
+const githubProfileStyles = `<link data-github-profile-styles rel="stylesheet" href="/github-profile.css">`;
 
 async function walk(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -42,8 +43,14 @@ function repairJavaScript(source) {
 }
 
 function enhanceHtml(source) {
-  if (source.includes("data-static-navigation")) return source;
-  return source.replace("</head>", `${staticNavigation}</head>`);
+  let transformed = source;
+  if (!transformed.includes("data-github-profile-styles")) {
+    transformed = transformed.replace("</head>", `${githubProfileStyles}</head>`);
+  }
+  if (!transformed.includes("data-static-navigation")) {
+    transformed = transformed.replace("</head>", `${staticNavigation}</head>`);
+  }
+  return transformed;
 }
 
 async function build() {
