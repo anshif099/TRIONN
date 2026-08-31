@@ -1,9 +1,25 @@
 const GITHUB_USER = "anshif099";
 
-const githubHeaders = {
-  Accept: "application/vnd.github+json",
-  "User-Agent": "trionn-portfolio",
-  "X-GitHub-Api-Version": "2022-11-28",
+function getGitHubHeaders(authenticated = false) {
+  const headers = {
+    Accept: "application/vnd.github+json",
+    "User-Agent": "trionn-portfolio",
+    "X-GitHub-Api-Version": "2022-11-28",
+  };
+
+  if (authenticated && process.env.GITHUB_TOKEN) {
+    headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  }
+
+  return headers;
+}
+
+const contributionLevels = {
+  NONE: 0,
+  FIRST_QUARTILE: 1,
+  SECOND_QUARTILE: 2,
+  THIRD_QUARTILE: 3,
+  FOURTH_QUARTILE: 4,
 };
 
 function parseContributionCalendar(html) {
@@ -19,7 +35,71 @@ function parseContributionCalendar(html) {
     days.push({ date: match[1], level: Number(match[2]) });
   }
 
-  return { total, days };
+  return { total, days, source: "public" };
+}
+
+async function getAuthenticatedContributions() {
+  if (!process.env.GITHUB_TOKEN) return null;
+
+  const graphqlResponse = await fetch("https://api.github.com/graphql", {
+    method: "POST",
+    headers: {
+      ...getGitHubHeaders(true),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query: `
+        query DeveloperContributions($login: String!) {
+          viewer { login }
+          user(login: $login) {
+            contributionsCollection {
+              restrictedContributionsCount
+              contributionCalendar {
+                totalContributions
+                weeks {
+                  contributionDays {
+                    date
+                    contributionCount
+                    contributionLevel
+                  }
+                }
+              }
+            }
+          }
+        }
+      `,
+      variables: { login: GITHUB_USER },
+    }),
+  });
+
+  if (!graphqlResponse.ok) {
+    throw new Error(`GitHub GraphQL returned ${graphqlResponse.status}`);
+  }
+
+  const payload = await graphqlResponse.json();
+  if (payload.errors?.length) {
+    throw new Error(payload.errors.map((error) => error.message).join("; "));
+  }
+  if (payload.data?.viewer?.login?.toLowerCase() !== GITHUB_USER.toLowerCase()) {
+    throw new Error("GITHUB_TOKEN must belong to the displayed GitHub account");
+  }
+
+  const collection = payload.data?.user?.contributionsCollection;
+  const calendar = collection?.contributionCalendar;
+  if (!calendar) throw new Error("Authenticated contribution calendar was not returned");
+
+  return {
+    total: calendar.totalContributions,
+    restricted: collection.restrictedContributionsCount,
+    source: "authenticated",
+    days: calendar.weeks.flatMap((week) =>
+      week.contributionDays.map((day) => ({
+        date: day.date,
+        count: day.contributionCount,
+        level: contributionLevels[day.contributionLevel] ?? 0,
+      })),
+    ),
+  };
 }
 
 export default async function handler(request, response) {
@@ -29,7 +109,8 @@ export default async function handler(request, response) {
   }
 
   try {
-    const [profileResponse, repositoriesResponse, contributionsResponse] = await Promise.all([
+    const githubHeaders = getGitHubHeaders();
+    const [profileResponse, repositoriesResponse, contributionsResponse, authenticatedContributions] = await Promise.all([
       fetch(`https://api.github.com/users/${GITHUB_USER}`, { headers: githubHeaders }),
       fetch(
         `https://api.github.com/users/${GITHUB_USER}/repos?type=owner&sort=updated&per_page=6`,
@@ -37,6 +118,10 @@ export default async function handler(request, response) {
       ),
       fetch(`https://github.com/users/${GITHUB_USER}/contributions`, {
         headers: { "User-Agent": githubHeaders["User-Agent"] },
+      }),
+      getAuthenticatedContributions().catch((error) => {
+        console.warn("Authenticated contributions unavailable; using public data", error);
+        return null;
       }),
     ]);
 
@@ -52,7 +137,7 @@ export default async function handler(request, response) {
 
     response.setHeader(
       "Cache-Control",
-      "public, s-maxage=3600, stale-while-revalidate=86400",
+      "public, s-maxage=300, stale-while-revalidate=3600",
     );
 
     return response.status(200).json({
@@ -73,7 +158,7 @@ export default async function handler(request, response) {
         stars: repository.stargazers_count,
         forks: repository.forks_count,
       })),
-      contributions: parseContributionCalendar(contributionsHtml),
+      contributions: authenticatedContributions || parseContributionCalendar(contributionsHtml),
     });
   } catch (error) {
     console.error("Unable to load GitHub profile", error);
