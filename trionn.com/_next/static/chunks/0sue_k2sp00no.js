@@ -848,7 +848,7 @@
                 let r = C.current,
                     l = Math.round(e),
                     n = r.imgs[l];
-                n && n.complete && t.src !== n.src && (t.src = n.src)
+                n && n.complete && n.naturalWidth > 0 && t.src !== n.src && (t.src = n.src)
             }, []),
             D = (0, E.useCallback)(() => {
                 let e, t, r = u.current;
