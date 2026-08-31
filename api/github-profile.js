@@ -69,7 +69,12 @@ async function getAuthenticatedContributions() {
     body: JSON.stringify({
       query: `
         query DeveloperContributions($login: String!) {
-          viewer { login }
+          viewer {
+            login
+            repositories(first: 1, ownerAffiliations: OWNER) {
+              totalCount
+            }
+          }
           user(login: $login) {
             contributionsCollection {
               restrictedContributionsCount
@@ -108,6 +113,7 @@ async function getAuthenticatedContributions() {
   if (!calendar) throw new Error("Authenticated contribution calendar was not returned");
 
   return {
+    repositoryTotal: payload.data.viewer.repositories.totalCount,
     total: calendar.totalContributions,
     restricted: collection.restrictedContributionsCount,
     source: "authenticated",
@@ -178,10 +184,13 @@ export default async function handler(request, response) {
         location: profile.location,
         followers: profile.followers,
         following: profile.following,
-        publicRepositories:
+        publicRepositories: Math.max(
+          profile.public_repos,
+          authenticatedContributions?.repositoryTotal || 0,
           typeof authenticatedUser?.owned_private_repos === "number"
             ? authenticatedUser.public_repos + authenticatedUser.owned_private_repos
-            : profile.public_repos,
+            : 0,
+        ),
       },
       repositories: repositories.map((repository) => ({
         name: repository.name,
