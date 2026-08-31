@@ -1,4 +1,4 @@
-import { access, copyFile, cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { copyFile, cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { dirname, extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { staticRoutes } from "./routes.mjs";
@@ -17,15 +17,6 @@ const aliases = new Map([
 ]);
 
 const staticNavigation = `<script data-static-navigation>(function(){var routes=new Set(${JSON.stringify(staticRoutes)});addEventListener("click",function(event){if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;var anchor=event.target.closest&&event.target.closest("a[href]");if(!anchor||anchor.target==="_blank"||anchor.hasAttribute("download"))return;var url=new URL(anchor.href,location.href);if(url.origin===location.origin&&routes.has(url.pathname)){event.preventDefault();event.stopImmediatePropagation();location.assign(url.pathname+url.search+url.hash)}},true)})();</script>`;
-
-async function exists(path) {
-  try {
-    await access(path);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 async function walk(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -78,7 +69,6 @@ async function build() {
 
   for (const [source, destination] of aliases) {
     const destinationPath = resolve(outputRoot, destination);
-    if (await exists(destinationPath)) continue;
     await mkdir(dirname(destinationPath), { recursive: true });
     await copyFile(resolve(outputRoot, source), destinationPath);
   }

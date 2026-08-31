@@ -1376,9 +1376,15 @@
                             className: "grid w-full grid-cols-12 gap-10 lg:gap-x-12 lg:gap-y-0 my-auto",
                             children: [(0, t.jsxs)("div", {
                                 className: "flex flex-col justify-between gap-6 col-span-12 md:col-span-6 lg:col-span-7 xl:col-span-8 order-2 md:order-1",
-                                children: [(0, t.jsxs)("span", {
-                                    className: "title block text-light-font/50",
-                                    children: ["©TRIONN® ", new Date().getFullYear()]
+                                children: [(0, t.jsxs)("div", {
+                                    className: "flex flex-wrap items-center gap-x-5 gap-y-2",
+                                    children: [(0, t.jsxs)("span", {
+                                        className: "title block text-light-font/50",
+                                        children: ["©TRIONN® ", new Date().getFullYear()]
+                                    }), (0, t.jsx)("span", {
+                                        className: "title block text-light-font/50",
+                                        children: "Developed by Muhammed Anshif"
+                                    })]
                                 }), (0, t.jsx)(x.BlurTextReveal, {
                                     as: "span",
                                     html: 'sound on&nbsp;<img src="/images/footer-sound.svg" alt="blast" class="w-6 h-6 mx-0.5 inline-block middle"/>&nbsp;Hover the lines.',
